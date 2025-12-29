@@ -168,7 +168,45 @@ PORT=5000
 ## Notes
 
 - The application uses SQLite for simplicity, but can be easily switched to PostgreSQL or MySQL by updating the Prisma schema and DATABASE_URL.
-- Order totals are automatically calculated based on item quantities and prices.
 - When creating an order, you can add multiple items at once.
-- **Order Total Calculation**: The logic for computing order totals is implemented in the **API/backend** (`server/index.js`), not in the frontend. The calculation happens server-side in the `POST /api/orders` and `PUT /api/orders/:id` endpoints (lines 169-186 and 220-237 respectively). The frontend only sends requests and displays the calculated total returned by the API.
+
+### Order Total Calculation
+
+The Order Total is calculated server-side in the backend (`server/index.js`), not in the frontend. The total represents the sum of all item subtotals (item price × quantity) for all items in an order.
+
+#### How It Works
+
+The calculation iterates through all items provided in the request, fetches the corresponding product from the database to get the current product price (unless a specific price is provided in the item data), and sums up `itemPrice × quantity` for each item. The calculated total is stored in the `Order.total` field in the database.
+
+**Implementation Details:**
+- Calculation happens in `POST /api/orders` (lines 169-186) and `PUT /api/orders/:id` when items are included (lines 220-237)
+- For each item, the system fetches the product to retrieve its current price (unless overridden by `item.price`)
+- The total is computed before creating/updating the order record
+- All items from the request body are processed to calculate the total
+
+#### CRUD Operation Coverage
+
+The Order Total is **automatically calculated and updated** for the following operations:
+
+- ✅ **POST /api/orders**: Total is calculated from all items provided in the request
+- ✅ **PUT /api/orders/:id** (when `items` array is included): Total is recalculated from the new items array (existing items are deleted first, then new items are created)
+
+**Important Limitations:**
+
+The Order Total is **NOT automatically updated** for the following operations:
+
+- ❌ **PUT /api/orders/:id** (when only `customerId` or `status` are updated without `items`): Total remains unchanged
+- ❌ **POST /api/items**: Creating a new item does not update the parent order's total
+- ❌ **PUT /api/items/:id**: Updating an item (quantity, price, etc.) does not update the parent order's total
+- ❌ **DELETE /api/items/:id**: Deleting an item does not update the parent order's total
+
+**Note:** To keep the order total accurate when using individual Item CRUD endpoints, you would need to manually recalculate and update the order total separately, or use the `PUT /api/orders/:id` endpoint with the complete items array instead.
+
+#### Performance Considerations
+
+Yes, **updates to Order Total require reading/processing all items** that will be associated with the order:
+
+- When calculating the total in `POST /api/orders` or `PUT /api/orders/:id`, the system processes all items from the request body and performs a database query to fetch each product's price (one query per unique product in the items array)
+- For `PUT /api/orders/:id` with items, the system does not read existing items from the database - it deletes all existing items first, then calculates the total from the new items array provided in the request
+- The calculation is O(n) where n is the number of items, with additional O(m) database queries where m is the number of unique products
 
