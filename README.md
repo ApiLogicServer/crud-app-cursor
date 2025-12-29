@@ -165,6 +165,48 @@ DATABASE_URL="file:./dev.db"
 PORT=5000
 ```
 
+## Development Process
+
+This application was developed using an AI-assisted development workflow. Based on the codebase structure and commit history, the development process appears to have followed this pattern:
+
+### Initial Creation
+
+The application was initially created from a basic prompt requesting a full-stack CRUD application for managing Customers, Orders, Items, and Products. This initial prompt generated:
+
+- The core entity structure (Customers, Products, Orders, Items)
+- Full-stack implementation with React frontend and Express backend
+- Prisma ORM with SQLite database
+- Complete CRUD API endpoints for all entities
+- Basic React components for managing each entity type
+- Database schema with proper relationships between entities
+
+![Initial Application Screenshot](./docs/images/Screenshot%202025-11-19%20at%2012.51.40%20PM.png)
+*Initial application state (November 19, 2025)*
+
+![Application Development Screenshot](./docs/images/Screenshot%202025-11-19%20at%2012.55.37%20PM.png)
+*Application during development (November 19, 2025)*
+
+### Iterative Refinements
+
+Following the initial creation, the application underwent several iterations to fix bugs and improve functionality:
+
+- **Nested Items Fix**: A bug fix was applied to address issues with nested items display or functionality
+- **Order Total Calculation**: Server-side calculation logic was refined to properly compute order totals
+- **UI/UX Improvements**: The user interface was refined for better usability and consistency
+
+![Nested Items Fix](./docs/images/nested%20items%20fix.png)
+*Bug fix for nested items issue*
+
+### Current State
+
+The application has evolved into a functional full-stack CRUD application with:
+- Clean, consistent UI components with shared styling
+- Proper entity relationships and data integrity
+- Server-side order total calculations
+- Complete CRUD operations for all entities
+
+This development process demonstrates the iterative nature of AI-assisted development, where an initial comprehensive prompt creates the foundation, followed by targeted prompts to fix specific issues and refine functionality.
+
 ## Notes
 
 - The application uses SQLite for simplicity, but can be easily switched to PostgreSQL or MySQL by updating the Prisma schema and DATABASE_URL.
